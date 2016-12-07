@@ -1,1 +1,1 @@
-cmd_/home/lfs/NetFilter/nf_mod.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o /home/lfs/NetFilter/nf_mod.ko /home/lfs/NetFilter/nf_mod.o /home/lfs/NetFilter/nf_mod.mod.o
+cmd_/home/students/2018/lasky/CS3320/hw5/NetFilter/nf_mod.ko := ld -r -m elf_x86_64 -T /usr/src/linux-headers-3.13.0-35-generic/scripts/module-common.lds --build-id  -o /home/students/2018/lasky/CS3320/hw5/NetFilter/nf_mod.ko /home/students/2018/lasky/CS3320/hw5/NetFilter/nf_mod.o /home/students/2018/lasky/CS3320/hw5/NetFilter/nf_mod.mod.o

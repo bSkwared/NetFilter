@@ -31,21 +31,22 @@ unsigned int hook_funco(void *priv, struct sk_buff *skb,
                               const struct nf_hook_state *state) {
 
     //grab network header using accessor
-    ip_header = (struct iphdr*) skb_network_header(skb); // TODO 2:  replace NULL with applicable code ... 
+    ip_header = (struct iphdr*) skb_network_header(skb); // 
        
     if (ip_header->protocol == PROTOCOL_ICMP) {
     //log to dmesg queue indicating an outbound ICMP packet was discovered 
-        // TODO 3: create message here ...
         printk(KERN_WARNING " Outbound ICMP packet intercepted.\n");
     }
 
    //allows the packet to proceed
-   return NF_ACCEPT; // TODO 4: replace 0 with proper define to keep packet ...
+   return NF_ACCEPT; 
 }
 
 //function to be called by nfhi hook operations
 unsigned int hook_funci(void *priv, struct sk_buff *skb, 
                               const struct nf_hook_state *state) {
+
+    int retval = NF_ACCEPT;
 
     //grab network header using accessor
     ip_header  = (struct iphdr*) skb_network_header(skb); // TODO 5: replace NULL with applicable code ... 
@@ -62,16 +63,16 @@ unsigned int hook_funci(void *priv, struct sk_buff *skb,
     // if the ICMP packet is from telehack
     if (ip_header->protocol==PROTOCOL_ICMP && 
          !strncmp(buf, "64.13.139.230\0", 20)) {
-    //log to dmesg queue 
-    printk(KERN_WARNING "incoming ICMP packet not-allowed from telehack.com\n");
-    return NF_DROP;
+        //log to dmesg queue 
+        printk(KERN_WARNING "incoming ICMP packet not-allowed from telehack.com\n");
+        retval = NF_DROP;
     } else {
-    //log to dmesg queue 
-    printk(KERN_WARNING "incoming ICMP packet allowed from elsewhere");
+        //log to dmesg queue 
+        printk(KERN_WARNING "incoming ICMP packet allowed from elsewhere");
+        retval = NF_ACCEPT;
     }
 
-   //allows the packet to proceed
-   return NF_ACCEPT; // TODO 8: replace 0 with proper define to keep packet ...
+   return retval;
 }
 
 //struct holding set of hook function options for outbound packets
@@ -93,7 +94,6 @@ static struct nf_hook_ops nfhi = {
 //Called when module loaded using 'insmod'
 int init_module() {
    printk(KERN_WARNING "registering net filter\n");
-   // TODO 9:  register hooks
    nf_register_hook(&nfhi);
    nf_register_hook(&nfho);
    printk(KERN_WARNING "registered net filter\n");
@@ -105,7 +105,6 @@ int init_module() {
 //Called when module unloaded using 'rmmod'
 void cleanup_module() {
    printk(KERN_WARNING "unregistering net filter\n");
-   // TODO 10:  unregister hooks
    nf_unregister_hook(&nfhi);
    nf_unregister_hook(&nfho);
    printk(KERN_WARNING "unregistered net filter\n");
