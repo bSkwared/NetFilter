@@ -1,1 +1,0 @@
-cmd_/home/lfs/Documents/NetFilter/nf_mod.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o /home/lfs/Documents/NetFilter/nf_mod.ko /home/lfs/Documents/NetFilter/nf_mod.o /home/lfs/Documents/NetFilter/nf_mod.mod.o
