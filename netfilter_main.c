@@ -3,7 +3,7 @@
 // and modified by K Shomper for linux 4.4 assignment in CS3320.  Dec 1, 2016.
 //
 // Modified: JT Deane and Blake Lasky
-//              3 Dec 2016
+//              8 Dec 2016
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -18,6 +18,8 @@
 
 #define PROTOCOL_ICMP     1
 
+#define TELEHACK_IP "64.13.139.230"
+
 struct iphdr *ip_header;
 
 /* Convinience union to convert __be32 to individual octets */
@@ -31,7 +33,7 @@ unsigned int hook_funco(void *priv, struct sk_buff *skb,
                               const struct nf_hook_state *state) {
 
     //grab network header using accessor
-    ip_header = (struct iphdr*) skb_network_header(skb); // 
+    ip_header = (struct iphdr*) skb_network_header(skb);
        
     if (ip_header->protocol == PROTOCOL_ICMP) {
     //log to dmesg queue indicating an outbound ICMP packet was discovered 
@@ -46,26 +48,29 @@ unsigned int hook_funco(void *priv, struct sk_buff *skb,
 unsigned int hook_funci(void *priv, struct sk_buff *skb, 
                               const struct nf_hook_state *state) {
 
+    //value to return
     int retval = NF_ACCEPT;
 
     //grab network header using accessor
-    ip_header  = (struct iphdr*) skb_network_header(skb); // TODO 5: replace NULL with applicable code ... 
+    ip_header  = (struct iphdr*) skb_network_header(skb);
        
     //grab the incoming ip address
     char buf[20];
     union ip_address ip;
-    ip.addr = ip_header->saddr; // TODO 6: replace 0 with actual ip address from skb ... 
+    ip.addr = ip_header->saddr;
 
     // convert the __be32 address to a typical dotted-notation IP address
     snprintf(buf, 20, "%d.%d.%d.%d", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
     printk(KERN_WARNING "NF_MOD: ip is \"%s\"\n", buf);
 
     // if the ICMP packet is from telehack
-    if (ip_header->protocol==PROTOCOL_ICMP && 
-         !strncmp(buf, "64.13.139.230\0", 20)) {
+    if (ip_header->protocol==PROTOCOL_ICMP && !strncmp(buf, TELEHACK_IP, 15)) {
         //log to dmesg queue 
         printk(KERN_WARNING "incoming ICMP packet not-allowed from telehack.com\n");
+
+        // Drop this packet
         retval = NF_DROP;
+
     } else {
         //log to dmesg queue 
         printk(KERN_WARNING "incoming ICMP packet allowed from elsewhere");
